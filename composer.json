@@ -1,0 +1,13 @@
+{
+    "require" : {
+       "php" : ">=7.1",
+        "eaglewu/swoole-ide-helper": "*@dev"
+    },
+    "repositories" :[
+        {
+            "type": "path",
+            "url": "package/swoole-ide-helper"
+        }
+    ],
+    "minimum-stability": "stable"
+}
