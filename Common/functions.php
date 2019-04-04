@@ -5,6 +5,8 @@
  * Date: 18-10-10
  * Time: 下午4:40
  */
+use Swoole\Http\Request;
+use Swoole\Http\Response;
 
  /** 这个是公共函数库　这里不用命名空间引入 */
 /**
@@ -63,4 +65,18 @@ function format_reload(string $string){
         }
     }
     return $tmp_str;
+}
+
+/**
+ * 由于google浏览器在进行一次请求的时候　会发送两个请求　其中有一个是请求是请求iconv
+ * @author chenlin
+ * @date 2019/4/4
+ * @return bool
+ */
+function refuseIconv(Request $request,Response $response){
+    $uri = $request->server['request_uri'];
+    if($uri == '/favicon.ico'){
+       return false;
+    }
+    return true;
 }

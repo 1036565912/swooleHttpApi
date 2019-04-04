@@ -8,6 +8,10 @@
 define('ROOT_PATH',__DIR__);
 //日志目录常量
 define('LOG_PATH',ROOT_PATH.DIRECTORY_SEPARATOR.'Log');
+//定义用户映射数据库
+define('BIND_DATABASE',0);
+
+
 
 
 //引入自动加载类

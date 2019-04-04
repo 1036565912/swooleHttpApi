@@ -218,7 +218,7 @@ class Mysql extends  CoMysql{
 
     /**
      * 重置mysql连接资源的一些属性信息重置
-     * @tip 防止下一次
+     * @tip 防止下一次操作有残留数据导致后面请求数据的污染
      */
     public function reset(){
         $this->sql = '';

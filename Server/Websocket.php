@@ -37,7 +37,7 @@ class Websocket{
         //添加当前的server对象到全局
         ServerManager::getInstance()->setSwooleServer($this->ws);
         //绑定回调
-        // $this->ws->on('open',[$this,'open']);
+        $this->ws->on('open',[$this,'open']);
         $this->ws->on('message',[$this,'message']);
         $this->ws->on('WorkerStart',[$this,'workerStart']);
         $this->ws->on('request',[$this,'request']);
@@ -82,6 +82,11 @@ class Websocket{
      * @tip 这里有一个问题 就是google浏览器会请求两次 会请求一个icon文件
      */
     public function request($request,$response){
+        //进行favicon.ico文件的过滤
+        if(!refuseIconv($request,$response)){
+            $response->status(404);
+            return $response->end();
+        }
         //v1.0版本　使用最简单的 s 兼容模式
         $result = $request->get['s'];
         if(empty($result)){
@@ -130,10 +135,19 @@ class Websocket{
 
     //websocket 连接回调函数  可以在request中获取当前的唯一标示fd
     public function open($server,$request){
-        echo "client:{$request->fd}已经连接!".PHP_EOL;
+        //websocket客户端与server端建立连接
+        echo "[".date('Y-m-d H:i:s',time())." client connected,当前的客户端fd为---{$request->fd}]".PHP_EOL;
     }
 
-    //接受客户端发送的消息 frame->fd 唯一标示 frame->data 客户端传递的数据
+    //接受客户端发送的消息 frame->fd 唯一标示 frame->data 客户端传递的数据[json数据]
+    /**
+     * 这里websocket长连接　主要应用于消息的实时推送 [--v0.1版本目前就做这个　　后面可以扩展为IM聊天]
+     * @param $server
+     * @param $frame
+     * @tip 这里需要心跳包检测,用户映射
+     * @author chenlin
+     * @date 2019/4/4
+     */
     public function message($server,$frame){
 
     }
