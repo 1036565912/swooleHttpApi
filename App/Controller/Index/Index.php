@@ -11,9 +11,17 @@ use App\Model\City;
 use Helper\TaskManager;
 use App\Task\Test;
 use UserException\ParamTypeErrorException;
+use UserException\MysqlException;
+use Helper\Log;
 class Index extends Controller{
     public function index(){
-        $city_model = new City();
+        //由于获取mysql资源的时候　可能抛出异常
+        try{
+            $city_model = new City();
+        }catch(MysqlException $e){
+            Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
+            return false;
+        }
         $result = $city_model->field(['id','name','uname','create_time'])->where([['parent_id','>=',3]])->first();
         $city_model->recyle(); //回收mysql对象
         return $result;

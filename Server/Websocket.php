@@ -1,7 +1,6 @@
 <?php
 namespace Server;
 
-use Component\SingleTon;
 use Pool\MysqlPool;
 use UserException\MysqlException;
 use UserException\RedisException;
@@ -12,6 +11,7 @@ use Component\Reflection;
 use UserException\ParamValidException;
 use Helper\Config;
 use Helper\ServerManager;
+use App\Websocket\Message;
 /**
  * websocket类
  * @tip 同时注册了http请求回调和message回调　如果需要新的需求　则需要自己修改websocket类
@@ -149,11 +149,34 @@ class Websocket{
      * @date 2019/4/4
      */
     public function message($server,$frame){
-
+        /** @tip 所有的逻辑操作　都是在message类中进行实现　该方法无需进行其他操作 @author chenlin @date 2019/4/9 */
+        $message = new Message($server,$frame);
     }
 
     //客户端断开连接 可以做一些数据处理操作
     public function close($server,$fd){
+        //则断开映射关系
+        try{
+            $redis  = RedisPool::getInstance()->getObj();
+        }catch (RedisException $e){
+            Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
+            echo $e->getMessage();
+            return ;
+        }
+        //选择到映射数据库
+        $redis->select(BIND_DATABASE);
+        //@tip 目前只有用最笨的方法来实现
+        $all_user = $redis->keys('*');
+        foreach($all_user as $row){
+            if($redis->get($row) == $fd){
+                //var_dump($redis->get($row));
+                $redis->del($row);
+                break;
+            }
+        }
+        //回收redis资源
+        RedisPool::getInstance()->recycleObj($redis);
+        echo "当前客户端{$fd}:断开连接!".PHP_EOL;
     }
 }
 

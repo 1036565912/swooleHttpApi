@@ -33,13 +33,13 @@ class PingMessage extends AbstractMessage{
      * @param string $data  [需要发送给客户端的数据]
      * @return mixed
      */
-    public function push($data = ''){
+    public function push(bool $flag = true,$data = ''){
         // TODO: Implement push() method.
         $response_info = [
             'method' => 'ping',
             'result' => $data,
-            'code'   => self::SUCCESS_CODE
+            'code'   => $flag ? self::SUCCESS_CODE : self::ERROR_CODE,
         ];
-        return $this->server->push($this->frame,json_encode($response_info));
+        return $this->server->push($this->frame->fd,json_encode($response_info));
     }
 }

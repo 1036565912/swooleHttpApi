@@ -22,5 +22,5 @@ abstract  class AbstractMessage{
         $this->frame = $frame;
     }
     abstract  public function deal(); //消息处理操作
-    abstract  public function push($data = ''); //消息返回
+    abstract  public function push(bool $flag = true,$data = ''); //消息返回
 }

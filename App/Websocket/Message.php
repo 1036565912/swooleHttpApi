@@ -10,6 +10,7 @@ namespace App\Websocket;
 use Swoole\WebSocket\Server;
 use Swoole\WebSocket\Frame;
 use Message\PingMessage;
+use Message\BindMessage;
 /**
  * 用来处理websocket　接受到客户端的数据之后　　继续的操作
  * Class Message
@@ -35,7 +36,11 @@ class Message{
                 $message = new PingMessage($server,$data['data'],$frame);
                 break;
             case 'bind' :
-                $message = new
+                $message = new BindMessage($server,$data['data'],$frame);
+                break;
         }
+
+        //执行对应的响应
+        return $message->deal();
     }
 }
