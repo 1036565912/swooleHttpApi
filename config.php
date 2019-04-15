@@ -5,7 +5,7 @@
 //自定义配置信息文件
 return [
     'redis' => [
-        'host' => '0.0.0.0',
+        'host' => '192.168.0.1', 
         'port' =>  6379,
         'timeOut' => 2,
     ],
@@ -29,4 +29,8 @@ return [
         'minCount' => 5,//用于热启动
         'maxCount' => 10, //连接池最大的链接数量
     ],
+	'test'	=> [
+		'name' => 'jack',
+		'age'  => 22
+	]
 ];
