@@ -33,5 +33,6 @@ return [
     'test'	=>  [
     	'name'	=> 'chen',
     	'age'	=> 23,
+    	'hometown'	=> '湖南常德',
     ]
 ];
