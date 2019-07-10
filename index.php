@@ -1,4 +1,5 @@
 <?php
+use Server\Websocket;
 
 /** 项目根目录 */
 
@@ -22,7 +23,7 @@ Common\Loader::autoload();
 //由于公共方法没有无法自动加载　这里只能手动载入
 require "Common/functions.php";
 
-use Server\Websocket;
+
 /**　参数格式: 地址　端口 其实可以通过命令行来动态添加  $argv*/
 
 $cli_host_array = $argv;

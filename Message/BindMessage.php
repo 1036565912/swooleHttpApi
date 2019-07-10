@@ -50,6 +50,7 @@ class BindMessage extends AbstractMessage{
     //@tip 这里应该加一个成功与否的标志
     public function push(bool $flag = true,$data = ''){
         // TODO: Implement push() method.
+        //@tip 由于存在问题
         $result = [
             'method' => 'bind',
             'result' => $data,

@@ -28,11 +28,5 @@ return [
     'pool' => [
         'minCount' => 5,//用于热启动
         'maxCount' => 10, //连接池最大的链接数量
-    ],
-    //用来测试矛盾冲突解决
-    'test'	=>  [
-    	'name'	=> 'chen',
-    	'age'	=> 23,
-    	'hometown'	=> '湖南常德',
     ]
 ];
