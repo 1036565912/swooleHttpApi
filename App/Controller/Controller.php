@@ -23,6 +23,8 @@ abstract  class Controller{
 
     /**
      * 最终类构造函数
+     * @param  $request Swoole\Http\Request
+     * @param  $response Swoole\Http\Response
      * @tip 用来进行输出 、 输出的对象的注入
      * Controller constructor.
      */

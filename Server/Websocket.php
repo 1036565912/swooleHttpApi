@@ -44,6 +44,8 @@ class Websocket{
         $this->ws->on('task',[$this,'task']);
         $this->ws->on('finish',[$this,'finish']);
         $this->ws->on('close',[$this,'close']);
+        //给一个提示　用来通知开发者　监听的ip和端口
+        echo '服务器正在启动,IP为:'.$this->_host.',监听的端口为:'.$this->_port.PHP_EOL;
         $this->ws->start();
     }
 
@@ -101,18 +103,20 @@ class Websocket{
         //注意当前controller不支持多个单词 把首字母大写
         $result[1] = ucwords($result[1]);
 
+        //解析正常 走这里 由于v0.1版本不会添加视图层操作　这里只做api操作　返回类型就是json
+        $response->header('Content-type','text/json;charset=utf-8');
         //进行方法操作的映射 这里可能抛出异常 需要进行捕捉
         try{
             $result = Reflection::run($result,$request,$response);
+            echo PHP_EOL;
+            echo '控制器方法返回的数据为:'.PHP_EOL;
             var_dump($result);
+            echo PHP_EOL;
         }catch (ParamValidException $e){
             Log::getInstance()->error("[".date('Y-m-d H:i:s',time()).'HTTP ACCESS ERROR'."]".$e->getMessage().PHP_EOL);
             //解析不正常 则走这里
-            return $response->end('sever error!');
+            return $response->end($e->getMessage());
         }
-        //解析正常 走这里 由于v0.1版本不会添加视图层操作　这里只做api操作　返回类型就是json
-        $response->header('Content-type','text/json;charset=utf-8');
-        return $response->end('hello world!');
     }
 
     /**

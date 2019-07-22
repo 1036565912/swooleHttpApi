@@ -45,7 +45,7 @@ class RedisPool implements AbstractPool {
         $this->redisPool = new Channel($this->maxCount);
         //开始实例化热启动需要的连接数
         for($i = 0;$i<$minNum;$i++){
-            $redis = new Redis();
+            $redis = new \Redis();    //@tip　　swoole官方推荐使用enableCoroutine + phpredis  or  predis
             $result = $redis->connect($this->host,$this->port,$this->timeOut);
             if(!$result){
                 throw new RedisException('coroutine redis initialize error!');
@@ -75,7 +75,7 @@ class RedisPool implements AbstractPool {
             return false;
         }else if($this->maxCount > $this->currentCount){
             //代表还可以创建redis连接
-            $redis = new Redis();
+            $redis = new \Redis();
             if(!$redis->connect($this->host,$this->port,$this->timeOut)){
                 //创建失败　这里抛出异常　
                 throw new RedisException('新建redis连接失败!');
@@ -100,7 +100,8 @@ class RedisPool implements AbstractPool {
         if($this->redisPool->push($obj)){
             return true;
         }
-
+        //如果回收失败 需要进行连接池的连接数目的减少
+        $this->currentCount--;
         return false;
     }
 }

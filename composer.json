@@ -9,5 +9,13 @@
             "url": "package/swoole-ide-helper"
         }
     ],
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "autoload":{
+        "files":[
+            "Common/functions.php"
+        ],
+        "psr-4":{
+            "App\\":"App/"
+        }
+    }
 }

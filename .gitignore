@@ -2,6 +2,4 @@
 package
 vendor
 composer.lock
-test.html
-process_test.php
-reflection.php
+Log/*

@@ -1,0 +1,12 @@
+[TIME:2019-07-22 14:35:30 SQL Record]:show databases
+[TIME:2019-07-22 14:35:30 SQL Record]:SELECT id,name,uname,create_time FROM o2o_city WHERE ( parent_id >= 3 ) LIMIT 1
+[TIME:2019-07-22 14:39:27 SQL Record]:show databases
+[TIME:2019-07-22 14:39:27 SQL Record]:SELECT id,name,uname,create_time FROM o2o_city WHERE ( parent_id >= 3 ) LIMIT 1
+[TIME:2019-07-22 14:40:48 SQL Record]:show databases
+[TIME:2019-07-22 14:40:48 SQL Record]:SELECT id,name,uname,create_time FROM o2o_city WHERE ( parent_id >= 3 ) LIMIT 1
+[TIME:2019-07-22 14:41:05 SQL Record]:show databases
+[TIME:2019-07-22 14:41:05 SQL Record]:SELECT id,name,uname,create_time FROM o2o_city WHERE ( parent_id >= 3 ) LIMIT 1
+[TIME:2019-07-22 14:43:49 SQL Record]:show databases
+[TIME:2019-07-22 14:43:49 SQL Record]:SELECT id,name,uname,create_time FROM o2o_city WHERE ( parent_id >= 3 ) LIMIT 1
+[TIME:2019-07-22 14:49:21 SQL Record]:show databases
+[TIME:2019-07-22 14:49:21 SQL Record]:SELECT id,name,uname,create_time FROM o2o_city WHERE ( parent_id >= 3 ) LIMIT 1

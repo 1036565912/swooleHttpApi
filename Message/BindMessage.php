@@ -34,17 +34,16 @@ class BindMessage extends AbstractMessage{
         var_dump($this->data);
         var_dump($this->frame->fd);
         $result = $redis->set($this->data,$this->frame->fd);
-        //回收redis链接资源
-        if(!RedisPool::getInstance()->recycleObj($redis)){
-            //如果回收失败　需要进行日志操作
-            Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']---redis pool recycle error'.PHP_EOL);
-        }
+
+
+        //进行历史消息的推送
+
+
         if($result){
             return $this->push();
         }else{
             return $this->push(false);
         }
-        // TODO: Implement deal() method.
     }
 
     //@tip 这里应该加一个成功与否的标志
@@ -57,5 +56,11 @@ class BindMessage extends AbstractMessage{
             'code'   => $flag ? self::SUCCESS_CODE : self::ERROR_CODE,
         ];
         return $this->server->push($this->frame->fd,json_encode($result));
+    }
+
+
+    public function historyPush()
+    {
+
     }
 }
