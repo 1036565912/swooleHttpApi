@@ -12,6 +12,7 @@ use Swoole\Coroutine\Channel;
 use Pool\Mysql;
 use UserException\MysqlException;
 use AbstractInterface\AbstractPool;
+
 /**
  * Class MysqlPool
  * @package Pool

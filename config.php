@@ -26,7 +26,7 @@ return [
     ],
 
     'pool' => [
-        'minCount' => 5,//用于热启动
-        'maxCount' => 10, //连接池最大的链接数量
+        'minCount' => 10,//用于热启动
+        'maxCount' => 20, //连接池最大的链接数量
     ]
 ];

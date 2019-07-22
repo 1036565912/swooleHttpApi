@@ -27,8 +27,8 @@ class Websocket{
         $this->_port = $port;
         $this->ws = new \swoole_websocket_server($this->_host,$this->_port);
         $this->ws->set([
-            'worker_num' => 1, //这里一般是内核的4倍到8倍  暂定
-            'task_worker_num' => 4, //暂定
+            'worker_num' => 4, //这里一般是内核的4倍到8倍  暂定
+            'task_worker_num' => 8, //暂定
             'enable_coroutine' => true, //允许在各种回调函数调用之间　创建一个协程
             'task_enable_coroutine' => false, //这里task进程还是设置为同步阻塞的　使用php原声的阻塞函数
          ]);
@@ -45,7 +45,7 @@ class Websocket{
         $this->ws->on('finish',[$this,'finish']);
         $this->ws->on('close',[$this,'close']);
         //给一个提示　用来通知开发者　监听的ip和端口
-        echo '服务器正在启动,IP为:'.$this->_host.',监听的端口为:'.$this->_port.PHP_EOL;
+        echo '服务正在启动,IP为:'.$this->_host.',监听的端口为:'.$this->_port.PHP_EOL;
         $this->ws->start();
     }
 
@@ -168,19 +168,24 @@ class Websocket{
             return ;
         }
         //选择到映射数据库
-        $redis->select(BIND_DATABASE);
-        //@tip 目前只有用最笨的方法来实现
-        $all_user = $redis->keys('*');
-        foreach($all_user as $row){
-            if($redis->get($row) == $fd){
-                //var_dump($redis->get($row));
-                $redis->del($row);
-                break;
+        $redis->select(REFLECTION_DATABASE);
+        if ($redis->exists($fd)) {
+            $user_id = $redis->get($fd);
+            $redis->del($fd);
+            $redis->select(BIND_DATABASE);
+            if ($redis->del($user_id)) {
+                //回收redis资源
+                RedisPool::getInstance()->recycleObj($redis);
+                echo "当前客户端{$fd}:断开连接!".PHP_EOL;
+            } else {
+                RedisPool::getInstance()->recycleObj($redis);
+                Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.'映射关系清除失败,原因:无法删除对应的key-value结构值'.PHP_EOL);
             }
+            return ;
+        } else {
+            Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.'获取反射用户id失败,原因根据fd标示:'.$fd.',无法获取!'.PHP_EOL);
+            return false;
         }
-        //回收redis资源
-        RedisPool::getInstance()->recycleObj($redis);
-        echo "当前客户端{$fd}:断开连接!".PHP_EOL;
     }
 }
 

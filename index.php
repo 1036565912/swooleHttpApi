@@ -13,6 +13,8 @@ define('LOG_PATH',ROOT_PATH.DIRECTORY_SEPARATOR.'Log');
 define('BIND_DATABASE',0);
 //定义用户历史消息数据库
 define('HISTORY_DATABASE',10);
+//定义一个用户设备关系反转数据库  用于用户的断开清除映射关系
+define('REFLECTION_DATABASE',11);
 
 
 

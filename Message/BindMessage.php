@@ -8,11 +8,10 @@
 
 namespace Message;
 use AbstractInterface\AbstractMessage;
-use Swoole\WebSocket\Frame;
-use Swoole\WebSocket\Server;
 use Pool\RedisPool;
 use Helper\Log;
 use UserException\RedisException;
+
 /**
  * 信息映射消息处理
  * Class BindMessage
@@ -34,10 +33,15 @@ class BindMessage extends AbstractMessage{
         var_dump($this->data);
         var_dump($this->frame->fd);
         $result = $redis->set($this->data,$this->frame->fd);
-
+        //并且需要存入反转数据库
+        $redis->select(REFLECTION_DATABASE);
+        $redis->set($this->frame->fd,$this->data);
 
         //进行历史消息的推送
+        $this->historyPush($redis,$this->data);
 
+        //资源回收
+         RedisPool::getInstance()->recycleObj($redis);
 
         if($result){
             return $this->push();
@@ -58,9 +62,23 @@ class BindMessage extends AbstractMessage{
         return $this->server->push($this->frame->fd,json_encode($result));
     }
 
-
-    public function historyPush()
+    /**
+     * 历史消息推送
+     * @param \Redis $redis　redis连接资源
+     * @param string $user_id 建立映射关系的用户id
+     * @return bool
+     * @author chenlin
+     * @date 2019/7/22
+     */
+    public function historyPush(\Redis $redis,string $user_id)
     {
-
+        //选择历史数据库
+        $redis->select(HISTORY_DATABASE);
+        $length = $redis->lLen($user_id);
+        for ($i=1; $i<=$length; $i++) {
+            $info = $redis->lPop($user_id);
+            $this->server->push($this->frame->fd,$info);
+        }
+        return true;
     }
 }

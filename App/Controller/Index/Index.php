@@ -50,12 +50,7 @@ class Index extends Controller{
 
 
     public function test(){
-        $redis = RedisPool::getInstance()->getObj();
-        $redis->select(BIND_DATABASE);
-        $redis->set('test','this is a test action');
-        RedisPool::getInstance()->recycleObj($redis);
-        $this->response->header('content-type','text/html;charset=utf-8');
-        return $this->response->end('<h1 style="color:red;">success!</h1>');
+        return $this->response->end(json_encode($this->request->get));
     }
 
 }
