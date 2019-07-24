@@ -1,0 +1,10 @@
+[TIME:2019-07-24 13:49:38 SQL Record]:show databases
+[TIME:2019-07-24 13:49:38 SQL Record]:select * from `user` where (id = 1)
+[TIME:2019-07-24 13:50:44 SQL Record]:show databases
+[TIME:2019-07-24 13:50:44 SQL Record]:select * from `user` where (id = 1)
+[TIME:2019-07-24 13:54:54 SQL Record]:show databases
+[TIME:2019-07-24 13:54:54 SQL Record]:select * from `user` where (id = 1)
+[TIME:2019-07-24 13:55:33 SQL Record]:show databases
+[TIME:2019-07-24 13:55:33 SQL Record]:select * from `user` where (id = 1)
+[TIME:2019-07-24 14:09:36 SQL Record]:show databases
+[TIME:2019-07-24 14:09:36 SQL Record]:select * from `user` where (id = 1)

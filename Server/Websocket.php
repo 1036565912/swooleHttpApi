@@ -26,8 +26,12 @@ class Websocket{
         $this->_host = $host;
         $this->_port = $port;
         $this->ws = new \swoole_websocket_server($this->_host,$this->_port);
+
+        //由于可能在worker进程使用一些原生阻塞函数　这里需要开启swoole提供的一键协程化
+        Runtime::enableCoroutine(true);
+
         $this->ws->set([
-            'worker_num' => 4, //这里一般是内核的4倍到8倍  暂定
+            'worker_num' => 1, //这里一般是内核的4倍到8倍  暂定
             'task_worker_num' => 8, //暂定
             'enable_coroutine' => true, //允许在各种回调函数调用之间　创建一个协程
             'task_enable_coroutine' => false, //这里task进程还是设置为同步阻塞的　使用php原声的阻塞函数
@@ -53,8 +57,6 @@ class Websocket{
     public function workerStart($server,$worker_id){
         //需要在worker进程添加一个协程redis连接池 协程mysql连接池
         if($server->taskworker === false){
-            //由于可能在worker进程使用一些原生阻塞函数　这里需要开启swoole提供的一键协程化
-            Runtime::enableCoroutine(true);
             //由于task进程是同步阻塞　无法使用协程redis客户端　所以这里只在worker进程中进行redis的热加载
             try{
                 RedisPool::getInstance(config('pool.minCount'));

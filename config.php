@@ -14,10 +14,10 @@ return [
     'mysql' => [
         'DB_HOST' => '127.0.0.1',
         'DB_PORT' => 3306,
-        'DB_DATABASE' => 'o2o',
-        'DB_USERNAME' => 'chenlin',
+        'DB_DATABASE' => 'test',
+        'DB_USERNAME' => 'root',
         'DB_PASSWORD' => 'cl123456',
-        'DB_PREFIX'   => 'o2o_',
+        'DB_PREFIX'   => '',
     ],
     'log' => [
         'error_path' => LOG_PATH.'/error.log',
@@ -26,7 +26,7 @@ return [
     ],
 
     'pool' => [
-        'minCount' => 10,//用于热启动
-        'maxCount' => 20, //连接池最大的链接数量
+        'minCount' => 1,//用于热启动
+        'maxCount' => 5, //连接池最大的链接数量
     ]
 ];

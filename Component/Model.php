@@ -55,13 +55,7 @@ abstract class Model implements AbstractModel {
      */
     public function __call($name, $arguments){
         // TODO: Implement __call() method.
-        if(count($arguments) == 1){
-            return $this->model->$name($arguments[0]);
-        }else if(count($arguments) == 2){
-            return $this->$name($arguments[0],$arguments[1]);
-        }else if(count($arguments) == 3){
-            return $this->model->$name($arguments[0],$arguments[1],$arguments[2]);
-        }
+      return call_user_func_array([$this->model,$name],$arguments);
     }
 
     /**

@@ -7,10 +7,11 @@
  */
 namespace Pool;
 use Swoole\Coroutine\Channel;
-use Swoole\Coroutine\Redis;
 use Component\SingleTon;
 use UserException\RedisException;
 use AbstractInterface\AbstractPool;
+use Swoole\Coroutine\Redis;
+
 /**
  * redis连接池　
  * swoole4.０版本以上　用协程代替了异步回调　　防止并发的时候　同个连接调用同一个连接　这里引入连接池

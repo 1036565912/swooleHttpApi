@@ -152,7 +152,7 @@ class Mysql extends  CoMysql{
         if(is_callable($where)){
             $where($this);
         }else if(is_array($where)){
-            $this->wheres .= '(';
+            $this->wheres = '(';
             foreach($where as $key => $value){
                 if(is_int($key)){
                     if(is_array($value) && count($value) == 3){
