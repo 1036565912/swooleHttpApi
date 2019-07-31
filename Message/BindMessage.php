@@ -8,9 +8,14 @@
 
 namespace Message;
 use AbstractInterface\AbstractMessage;
+use Pool\MysqlPool;
 use Pool\RedisPool;
 use Helper\Log;
+use UserException\MysqlException;
 use UserException\RedisException;
+use App\Model\MessagePush;
+use UserException\MaxConnectionException;
+use UserException\ReconnectException;
 
 /**
  * 信息映射消息处理
@@ -21,17 +26,20 @@ use UserException\RedisException;
  */
 class BindMessage extends AbstractMessage{
     public function deal(){
+        echo 'client:'.$this->frame->fd.'建立关系映射,对应的用户id为:'.$this->data.PHP_EOL;
         //获取redis实例 由于初始化的时候　可能抛出异常
         try {
             $redis = RedisPool::getInstance()->getObj();
         }catch (RedisException $e){
             Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
-            return $this->push(false);
+            return $this->push(false,'系统异常,无法进行关系绑定');
+        }catch (MaxConnectionException $e) {
+            Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
+            return $this->push(false,'系统繁忙,无法处理你的请求');
         }
+
         $redis->select(BIND_DATABASE);
         //进行用户信息与fd的绑定
-        var_dump($this->data);
-        var_dump($this->frame->fd);
         $result = $redis->set($this->data,$this->frame->fd);
         //并且需要存入反转数据库
         $redis->select(REFLECTION_DATABASE);
@@ -53,6 +61,8 @@ class BindMessage extends AbstractMessage{
     //@tip 这里应该加一个成功与否的标志
     public function push(bool $flag = true,$data = ''){
         // TODO: Implement push() method.
+        //message操作　最后都会走到push 所以就在这里进行全局回收mysql资源
+        MysqlPool::getInstance()->globalRecycle();
         //@tip 由于存在问题
         $result = [
             'method' => 'bind',
@@ -72,12 +82,34 @@ class BindMessage extends AbstractMessage{
      */
     public function historyPush(\Redis $redis,string $user_id)
     {
+        echo '进行了历史消息的推送'.PHP_EOL;
+        //实例化一个消息推送历史数据的模型
+        try {
+            $messagePush = new MessagePush();
+        } catch (MysqlException $e) {
+            Log::getInstance()->error('[record messagePush Error '.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
+            return false;
+        } catch (MaxConnectionException $e){
+            Log::getInstance()->error('[record messagePush Error '.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
+            return false;
+        } catch (ReconnectException $e) {
+            Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).' Model 初始化失败]'.$e->getMessage().PHP_EOL);
+            return false;
+        }
+
         //选择历史数据库
         $redis->select(HISTORY_DATABASE);
         $length = $redis->lLen($user_id);
         for ($i=1; $i<=$length; $i++) {
-            $info = $redis->lPop($user_id);
-            $this->server->push($this->frame->fd,$info);
+            $info = $redis->rPop($user_id);
+            $info = json_decode($info,true);
+            $messagePush->insertOne($info['message_type'],$info['text'],$user_id,$info['time'],$info['place_id'],$info['camera_id']);
+            if (checkClient($this->server,$this->frame->fd)) {
+                $this->server->push($this->frame->fd,pushMessage($info['text']));
+            } else {
+                Log::getInstance()->error('[Type Error: '.date('Y-m-d H:i:s',time()).']Fd =>'.$this->frame->fd.'对应的user_id =>'.$user_id.'不是websocket client'.PHP_EOL);
+            }
+
         }
         return true;
     }

@@ -10,6 +10,11 @@ namespace Component;
 use Pool\MysqlPool;
 use Helper\Config;
 use AbstractInterface\AbstractModel;
+use UserException\MaxConnectionException;
+use UserException\MysqlException;
+use UserException\ReconnectException;
+use Swoole\Coroutine;
+
 /** 基类model类 定义基本的系列规范 @author:chenlin @date:2019/4/1 */
 abstract class Model implements AbstractModel {
     //当前的mysql连接对象
@@ -22,6 +27,7 @@ abstract class Model implements AbstractModel {
 
     /**
      * 从连接池获取一个连接资源
+     * @throws  MysqlException | MaxConnectionException | ReconnectException
      * @return mixed
      * @author chenlin
      * @date 2019/4/１
@@ -29,13 +35,23 @@ abstract class Model implements AbstractModel {
     public function model(){
         // TODO: Implement model() method.
         $this->model = MysqlPool::getInstance()->getObj();
-        return $this->model;
+        //由于获取mysql资源会抛出异常  如果没有被外层捕获　　就代表　拿到了mysql资源
+//        echo PHP_EOL.'获取到的mysql连接'.PHP_EOL;
+//        var_dump($this->model);
+        $cid = Coroutine::getCid();
+        if ($cid === -1) {
+            echo PHP_EOL.'当前系统所处的环境不是协程环境,请检查!'.PHP_EOL;
+            exit();
+        }
+        MysqlPool::getInstance()->addConnect($this->model);
     }
 
     /**
-     * 继承于model基类的子类 无法定义自己的构造函数 只有用initialize方法来进行一些参数的初始化
+     * 默认根据model名称去自动分割成下划线　然后去查询数据
+     * @tip 默认是不允许进行重写基类的initialize方法
+     * @tip 如果一定要重写　请去掉final修饰词
      */
-    final public function initialize(){
+     public function initialize(){
         //模型跟表进行关联
         $current_class = strrchr(static::class,'\\'); //static 在哪里调用就代表哪个类对象   self则是代表被定义的类对象
         $current_class = trim($current_class,'\\');
@@ -55,13 +71,7 @@ abstract class Model implements AbstractModel {
      */
     public function __call($name, $arguments){
         // TODO: Implement __call() method.
-        if(count($arguments) == 1){
-            return $this->model->$name($arguments[0]);
-        }else if(count($arguments) == 2){
-            return $this->$name($arguments[0],$arguments[1]);
-        }else if(count($arguments) == 3){
-            return $this->model->$name($arguments[0],$arguments[1],$arguments[2]);
-        }
+        return call_user_func_array([$this->model,$name],$arguments);
     }
 
     /**

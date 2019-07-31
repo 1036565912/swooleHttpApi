@@ -7,6 +7,7 @@
  */
 
 namespace App\Websocket;
+use Message\PushMessage;
 use Swoole\WebSocket\Server;
 use Swoole\WebSocket\Frame;
 use Message\PingMessage;
@@ -38,6 +39,8 @@ class Message{
             case 'bind' :
                 $message = new BindMessage($server,$data['data'],$frame);
                 break;
+            case 'push' :
+                $message = new PushMessage($server,$data['data'],$frame);
         }
 
         //执行对应的响应

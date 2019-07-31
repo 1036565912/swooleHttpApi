@@ -13,11 +13,11 @@ return [
     ],
     'mysql' => [
         'DB_HOST' => '127.0.0.1',
-        'DB_PORT' => 3306,
-        'DB_DATABASE' => 'o2o',
-        'DB_USERNAME' => 'chenlin',
-        'DB_PASSWORD' => 'cl123456',
-        'DB_PREFIX'   => 'o2o_',
+        'DB_PORT' => 3305,
+        'DB_DATABASE' => 'ZH_hospital',
+        'DB_USERNAME' => 'root3',
+        'DB_PASSWORD' => 'yybigdata',
+        'DB_PREFIX'   => '',
     ],
     'log' => [
         'error_path' => LOG_PATH.'/error.log',
@@ -26,7 +26,8 @@ return [
     ],
 
     'pool' => [
-        'minCount' => 10,//用于热启动
-        'maxCount' => 20, //连接池最大的链接数量
+        'redis_minCount' => 10, //redis热加载的连接数量用于热启动
+        'mysql_minCount' => 20,//mysql热加载的连接数量用于热启动
+        'maxCount' => 50, //连接池最大的链接数量
     ]
 ];

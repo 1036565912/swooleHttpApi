@@ -128,6 +128,16 @@ class Mysql extends  CoMysql{
     }
 
     /**
+     * 由于业务的不完整　导致需要获取表名称
+     * @author chenlin
+     * @date 2019/7/23
+     */
+    public function getTable()
+    {
+        return $this->table;
+    }
+
+    /**
      * 设置数据库查询的字段的设置
      * @param $fields string|array 如果是array则是一维下标数组 如果是string 则是用,隔开的字符串
      * @return Mysql对象
@@ -146,13 +156,14 @@ class Mysql extends  CoMysql{
     /**
      * 查询的条件　
      * @tip 这里做了一个限制　　一个key只能对应一个条件限制 不然直接忽略掉设置的条件
+     * @tip 这里一次查询只能调用一次where 第一版本考虑的不够周全
      * @param $where array
      */
     public function where($where){
         if(is_callable($where)){
             $where($this);
         }else if(is_array($where)){
-            $this->wheres .= '(';
+            $this->wheres = '(';
             foreach($where as $key => $value){
                 if(is_int($key)){
                     if(is_array($value) && count($value) == 3){
@@ -225,7 +236,7 @@ class Mysql extends  CoMysql{
         $this->orders = '';
         $this->groups = '';
         $this->wheres = '';
-        $this->fields = '';
+        $this->fields = '*';
         $this->table  = '';
         return true;
     }

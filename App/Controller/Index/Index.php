@@ -7,26 +7,45 @@
  */
 namespace App\Controller\Index;
 use App\Controller\Controller;
-use App\Model\City;
 use Helper\TaskManager;
 use App\Task\Test;
+use Pool\MysqlPool;
 use Pool\RedisPool;
 use UserException\ParamTypeErrorException;
 use UserException\MysqlException;
+use UserException\MaxConnectionException;
 use Helper\Log;
+use App\Model\PlaceInfo;
+use UserException\ReconnectException;
+use UserException\RedisException;
 
 class Index extends Controller{
 
     public function index(){
         //由于获取mysql资源的时候　可能抛出异常
         try{
-            $city_model = new City();
+            $city_model = new PlaceInfo();
         }catch(MysqlException $e){
             Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
-            return false;
+            return $this->response->end(json_encode([
+                'code' => 500,
+                'msg'  => '系统出现错误'
+            ]));
+        }catch (MaxConnectionException $e) {
+            Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
+            return $this->response->end(json_encode([
+                'code' => 500,
+                'msg'  => '系统繁忙,无法处理您的请求'
+            ]));
+        }catch (ReconnectException $e) {
+            Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
+            return $this->response->end(json_encode([
+                'code' => 500,
+                'msg'  => '系统出现错误'
+            ]));
         }
-        $result = $city_model->field(['id','name','uname','create_time'])->where([['parent_id','>=',3]])->first();
-        $city_model->recyle(); //回收mysql对象
+        $result = $city_model->where([['Id','=',3]])->first();
+        MysqlPool::getInstance()->globalRecycle();
         return $this->response->end(json_encode($result));
     }
 
@@ -45,12 +64,37 @@ class Index extends Controller{
         }catch(ParamTypeErrorException $e){
             var_dump($e->getMessage());
         }
-        return true;
+        return $this->response->end(json_encode([
+            'code' => 200,
+            'msg'  => 'hello world!'
+        ]));
     }
 
 
     public function test(){
-        return $this->response->end(json_encode($this->request->get));
+        try {
+            $redis = RedisPool::getInstance()->getObj();
+        } catch (RedisException $e) {
+            Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
+            return $this->response->end(json_encode([
+                'code' => 500,
+                'msg'  => '系统发生错误'
+            ]));
+        } catch (MaxConnectionException $e) {
+            Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
+            return $this->response->end(json_encode([
+                'code' => 500,
+                'msg'  => '系统繁忙'
+            ]));
+        }
+
+        $redis->select(1);
+        $redis->incr('viewCount');
+        RedisPool::getInstance()->recycleObj($redis);
+        return $this->response->end(json_encode([
+            'code' => '200',
+            'msg'  => '请求成功'
+        ]));
     }
 
 }

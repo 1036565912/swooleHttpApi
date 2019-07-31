@@ -80,3 +80,19 @@ function refuseIconv(Request $request,Response $response){
     }
     return true;
 }
+
+/**
+ * 推送给客户端消息的格式
+ * @param  string $text 需要推送的文本信息
+ * @return string
+ * @author chenlin
+ * @date 2019/7/24
+ */
+function pushMessage(string $text)
+{
+    return json_encode([
+        'method' => 'message',
+        'result' => $text,
+        'code'  => 200
+    ]);
+}

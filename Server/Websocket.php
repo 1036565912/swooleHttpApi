@@ -12,6 +12,8 @@ use UserException\ParamValidException;
 use Helper\Config;
 use Helper\ServerManager;
 use App\Websocket\Message;
+use UserException\MaxConnectionException;
+
 /**
  * websocket类
  * @tip 同时注册了http请求回调和message回调　如果需要新的需求　则需要自己修改websocket类
@@ -26,11 +28,16 @@ class Websocket{
         $this->_host = $host;
         $this->_port = $port;
         $this->ws = new \swoole_websocket_server($this->_host,$this->_port);
+
+        //由于可能在worker进程使用一些原生阻塞函数　这里需要开启swoole提供的一键协程化
+        Runtime::enableCoroutine(true);
+
         $this->ws->set([
             'worker_num' => 4, //这里一般是内核的4倍到8倍  暂定
             'task_worker_num' => 8, //暂定
             'enable_coroutine' => true, //允许在各种回调函数调用之间　创建一个协程
-            'task_enable_coroutine' => false, //这里task进程还是设置为同步阻塞的　使用php原声的阻塞函数
+            'task_enable_coroutine' => false, //这里task进程还是设置为同步阻塞的　使用php原声的阻塞函数,
+            'log_level' => SWOOLE_LOG_ERROR, //设置展示的日志等级
          ]);
         //实例化一个配置文件加载类 @date 2019/4/1 用来提高配置文件读取速度
         Config::getInstance();
@@ -53,11 +60,9 @@ class Websocket{
     public function workerStart($server,$worker_id){
         //需要在worker进程添加一个协程redis连接池 协程mysql连接池
         if($server->taskworker === false){
-            //由于可能在worker进程使用一些原生阻塞函数　这里需要开启swoole提供的一键协程化
-            Runtime::enableCoroutine(true);
             //由于task进程是同步阻塞　无法使用协程redis客户端　所以这里只在worker进程中进行redis的热加载
             try{
-                RedisPool::getInstance(config('pool.minCount'));
+                RedisPool::getInstance(config('pool.redis_minCount'));
             }catch (RedisException $e){
                 Log::getInstance()->error('[date:'.date('Y-m-d H:i:s',time()).'----error info:'.$e->getMessage().']'.PHP_EOL);
                 var_dump($e->getMessage());
@@ -65,7 +70,7 @@ class Websocket{
             }
 
             try{
-                MysqlPool::getInstance(config('pool.minCount'));
+                MysqlPool::getInstance(config('pool.mysql_minCount'));
             }catch (MysqlException $e){
                 Log::getInstance()->error('[date:'.date('Y-m-d H:i:s',time()).'----error info:'.$e->getMessage().']'.PHP_EOL);
                 var_dump($e->getMessage());
@@ -166,6 +171,10 @@ class Websocket{
             Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
             echo $e->getMessage();
             return ;
+        }catch (MaxConnectionException $e) {
+            Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
+            echo $e->getMessage();
+            return ;
         }
         //选择到映射数据库
         $redis->select(REFLECTION_DATABASE);
@@ -184,6 +193,7 @@ class Websocket{
             return ;
         } else {
             Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.'获取反射用户id失败,原因根据fd标示:'.$fd.',无法获取!'.PHP_EOL);
+            RedisPool::getInstance()->recycleObj($redis);
             return false;
         }
     }

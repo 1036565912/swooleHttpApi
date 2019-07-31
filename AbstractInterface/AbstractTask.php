@@ -8,7 +8,7 @@
 
 namespace AbstractInterface;
 
-/** 模板接口类 @author chenlin */
+/** 任务模板接口类 @author chenlin */
 abstract  class AbstractTask{
     protected  $data;  //用来保存需要处理的数据
     public $result;  //用来保存已经处理好的数据
