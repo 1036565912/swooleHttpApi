@@ -6,6 +6,7 @@
  * Time: 下午5:26
  */
 namespace App\Controller\Index;
+
 use App\Controller\Controller;
 use Helper\TaskManager;
 use App\Task\Test;
@@ -24,6 +25,7 @@ class Index extends Controller{
     public function index(){
         //由于获取mysql资源的时候　可能抛出异常
         try{
+
             $city_model = new PlaceInfo();
         }catch(MysqlException $e){
             Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
@@ -44,8 +46,20 @@ class Index extends Controller{
                 'msg'  => '系统出现错误'
             ]));
         }
+
         $result = $city_model->where([['Id','=',3]])->first();
         MysqlPool::getInstance()->globalRecycle();
+        try {
+            $redis = RedisPool::getInstance()->getObj();
+        } catch (RedisException $e){
+            Log::getInstance()->error('['.date('Y-m-d H:i:s',time()).']----'.$e->getMessage().PHP_EOL);
+            return false;
+        }
+
+        $redis->select(10);
+        $redis->lPush('test','this is a test text');
+        RedisPool::getInstance()->recycleObj($redis);
+
         return $this->response->end(json_encode($result));
     }
 

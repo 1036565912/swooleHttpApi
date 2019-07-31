@@ -151,6 +151,9 @@ class MysqlPool implements AbstractPool {
         if(!$result){
             //校验是否是断线状态
             if($obj->errno == 2006 || $obj->errno == 2013){
+                echo '----------------------------'.PHP_EOL;
+                echo '进行了断线重连!'.PHP_EOL;
+                echo '----------------------------'.PHP_EOL;
                 //代表是已经断线　
                 Log::getInstance()->record('[DB Reconnect '.date('Y-m-d H:i:s',time()).']错误信息为:'.$obj->error.',错误code为:'.$obj->errno.PHP_EOL);
                 $obj = $this->reconnect($obj);
@@ -181,9 +184,11 @@ class MysqlPool implements AbstractPool {
             $this->currentCount--;
             throw new ReconnectException('断线重连机制重连失败!');
         }
+
         /** 这里需要增加一个修改连接对象属性的策略　因为查询正确　是不会修改errno error */
         $obj->error = "";
         $obj->errno = 0;
+
         return $obj;
     }
 

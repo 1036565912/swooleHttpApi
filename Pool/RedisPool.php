@@ -6,12 +6,14 @@
  * Time: 上午11:48
  */
 namespace Pool;
+
 use Swoole\Coroutine\Channel;
 use Helper\Config;
 use Component\SingleTon;
 use UserException\RedisException;
 use AbstractInterface\AbstractPool;
 use UserException\MaxConnectionException;
+
 
 /**
  * redis连接池　

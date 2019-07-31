@@ -71,7 +71,8 @@ abstract class Model implements AbstractModel {
      */
     public function __call($name, $arguments){
         // TODO: Implement __call() method.
-        return call_user_func_array([$this->model,$name],$arguments);
+      return call_user_func_array([$this->model,$name],$arguments);
+
     }
 
     /**

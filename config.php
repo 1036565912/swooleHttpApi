@@ -13,10 +13,12 @@ return [
     ],
     'mysql' => [
         'DB_HOST' => '127.0.0.1',
-        'DB_PORT' => 3305,
-        'DB_DATABASE' => 'ZH_hospital',
-        'DB_USERNAME' => 'root3',
-        'DB_PASSWORD' => 'yybigdata',
+
+        'DB_PORT' => 3306,
+        'DB_DATABASE' => 'test',
+        'DB_USERNAME' => 'root',
+        'DB_PASSWORD' => 'cl123456',
+
         'DB_PREFIX'   => '',
     ],
     'log' => [

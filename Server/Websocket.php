@@ -33,7 +33,7 @@ class Websocket{
         Runtime::enableCoroutine(true);
 
         $this->ws->set([
-            'worker_num' => 4, //这里一般是内核的4倍到8倍  暂定
+            'worker_num' => 1, //这里一般是内核的4倍到8倍  暂定
             'task_worker_num' => 8, //暂定
             'enable_coroutine' => true, //允许在各种回调函数调用之间　创建一个协程
             'task_enable_coroutine' => false, //这里task进程还是设置为同步阻塞的　使用php原声的阻塞函数,
